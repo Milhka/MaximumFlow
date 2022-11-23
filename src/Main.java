@@ -97,7 +97,13 @@ public class Main {
 //        s.toDotString();
         MaximumFlow m = MaximumFlow.fromDotFile("D:/camil/Documents/Master/Graph/MaximumFlow/test");
         System.out.println(m.toString());
-
+        if(m.checkFlowNetwork()){
+            System.out.println("Correct");
+        }else{
+            System.out.println("Incorrect");
+        }
+        m.FindAllPaths(-1,0);
+        System.out.println("\n"+ m.AllPath.toString()) ;
 //
 //        File file = new File("test");
 //
