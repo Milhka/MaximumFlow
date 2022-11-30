@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MaximumFlow {
+public class MaximumFlow{
     Graf g = new Graf();
     int step = 1;
     List<Edge> lEdge;
@@ -301,10 +301,87 @@ public class MaximumFlow {
 
     }
 
+    public int residualCapacity(List<Edge> edges){
+        Edge edge = edges.iterator().next();
+        int flowDeBase = flow.get(edge);
+        for (Edge e: edges) {
+            if (flow.get(e) < flowDeBase){
+                flowDeBase = flow.get(e);
+            }
+        }
+        return flowDeBase;
+    }
+
+    public String residualGraph(int it, List<Node> chemin, int residualCapacity){
+        StringBuilder r = new StringBuilder();
+        r.append("digraph residualGraph").append(it).append(" {");
+        r.append("\nrankdir=\"LR\";");
+        r.append("label=\"(1) residual graph.\n");
+        r.append("Augmenting path: [");
+        for (Node n : chemin){
+            if(n.equals(-1)){
+                r.append("s,");
+            } else if (n.equals(0)) {
+                r.append("t].\n");
+            } else{
+                r.append(n.getId() + ", ");
+            }
+        }
+        r.append("Residual capacity: " + residualCapacity + ";");
+        for(Edge e : g.getAllEdges()) {
+            if(e.from().equals(-1)){
+                r.append("s");
+            }else if(e.from().equals(0)){
+                //Erreur
+            }else{
+                r.append(e.from().getId());
+            }
+            r.append(" -> ");
+            if(e.to().equals(0)){
+                r.append("t");
+            }else if(e.to().equals(-1)){
+                //Erreur
+            }else{
+                r.append(e.to().getId());
+            }
+            r.append("[label=\"").append(e.getWeight()).append("\", len=").append(e.getWeight()).append("];\n");
+        }
+        return r.toString();
+    }
 
 
-
-    public void residualGraph(){};
+    public String flowSuivant(int it, List<Node> chemin, int residualCapacity){
+        StringBuilder r = new StringBuilder();
+        r.append("digraph flow").append(it).append(" {");
+        r.append("\nrankdir=\"LR\";");
+        int ancienit = it-1;
+        r.append("label=\"("+ it +") induced from residual graph " +
+                ancienit + ". Value : " + residualCapacity + ";.\n");
+        for(Edge e : g.getAllEdges()) {
+            if(e.from().equals(-1)){
+                r.append("s");
+            }else if(e.from().equals(0)){
+                //Erreur
+            }else{
+                r.append(e.from().getId());
+            }
+            r.append(" -> ");
+            if(e.to().equals(0)){
+                r.append("t");
+            }else if(e.to().equals(-1)){
+                //Erreur
+            }else{
+                r.append(e.to().getId());
+            }
+            if(chemin.contains(e.to())){//Peut-être meilleur avec list Edge
+                r.append("[label=\"" + residualCapacity + "/" +  e.getWeight() + "\", len=").append(e.getWeight()).append("];\n");
+            }
+            else{
+                r.append("[label=\"").append(e.getWeight()).append("\", len=").append(e.getWeight()).append("];\n");
+            }
+        }
+        return r.toString();
+    }
 
 
 }
