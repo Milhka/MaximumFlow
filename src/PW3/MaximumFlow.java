@@ -5,7 +5,9 @@ import m1graf2022.Graf;
 import m1graf2022.Node;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -156,12 +158,112 @@ public class MaximumFlow{
         return g.toDotString();
     }
 
+
+    public void toDotFile(String toPrint,String fileName, String extension) {
+
+
+        try (PrintWriter out = new PrintWriter(fileName+"."+extension)) {
+            out.println(toPrint);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+    public void solution_1(){
+        if(checkFlowNetwork()){
+            System.out.println("The graf is not OK");
+        }
+        FindAllPaths(-1,0);
+        System.out.println("\n"+ AllPath.toString()) ;
+        int i = 0;
+        System.out.println(flowInit());
+        List<Node> list1 = new ArrayList<>();
+        List<Node> list2 = new ArrayList<>();
+        List<Node> list3 = new ArrayList<>();
+        List<Node> list4 = new ArrayList<>();
+        list1.add(g.getNode(-1));
+        list1.add(g.getNode(1));
+        list1.add(g.getNode(3));
+        list1.add(g.getNode(4));
+        list1.add(g.getNode(0));
+
+        list2.add(g.getNode(-1));
+        list2.add(g.getNode(1));
+        list2.add(g.getNode(3));
+        list2.add(g.getNode(0));
+
+        list3.add(g.getNode(-1));
+        list3.add(g.getNode(2));
+        list3.add(g.getNode(3));
+        list3.add(g.getNode(0));
+
+        list4.add(g.getNode(-1));
+        list4.add(g.getNode(3));
+        list4.add(g.getNode(4));
+        list4.add(g.getNode(0));
+
+        int cap = residualCapacity(list1)  ;
+        System.out.println(residualGraphAffiche(i,list1,cap));
+        System.out.println(flowSuivant(1,list1,cap));
+        residualGraphSync(list1, cap);
+
+        cap = residualCapacity(list2)  ;
+        System.out.println(residualGraphAffiche(i,list2,cap));
+        System.out.println(flowSuivant(2,list2,cap));
+        residualGraphSync(list2, cap);
+
+        cap = residualCapacity(list3)  ;
+        System.out.println(residualGraphAffiche(i,list3,cap));
+        System.out.println(flowSuivant(3,list3,cap));
+        residualGraphSync(list3, cap);
+
+        cap = residualCapacity(list4)  ;
+        System.out.println(residualGraphAffiche(i,list4,cap));
+        System.out.println(flowSuivant(4,list4,cap));
+        residualGraphSync(list4, cap);
+
+        /*for(List<Node> l : AllPath){
+            int cap = residualCapacity(l)  ;
+            System.out.println(residualGraphAffiche(i,l,cap));
+            System.out.println(flowSuivant(i,l,cap));
+            residualGraphSync(l, cap);
+            i++;
+        }*/
+    }
+
+    public void solution_1(boolean saveFile){
+        if(checkFlowNetwork()){
+            System.out.println("The graf is not OK");
+        }
+        FindAllPaths(-1,0);
+        System.out.println("\n"+ AllPath.toString()) ;
+        int i = 0;
+        String residualName = "residualGraph";
+        String flowName = "flow";
+
+        for(List<Node> l : AllPath){
+            int cap = residualCapacity(l)  ;
+            residualName = "residualGraph"+i;
+            flowName = "flow"+i;
+            toDotFile( residualGraphAffiche(i,l,cap),residualName,"gv");
+            toDotFile( flowSuivant(i,l,cap),flowName,"gv");
+            System.out.println(residualGraphAffiche(i,l,cap));
+            System.out.println(flowSuivant(i,l,cap));
+
+            i++;
+        }
+    }
+
+
     public String flowInit(){
         for (Node n : g.getAllNodes()){
             gResi.addNode(n);
         }
         for (Edge e : g.getAllEdges()){
-            gResi.addEdge(e);
+            gResi.addEdge(new Edge(e.from(), e.to(),e.getWeight()));
         }
 
         String r = "";
@@ -277,53 +379,21 @@ public class MaximumFlow{
     }
 
 
-    public String getDFSfromSource(){
-        String res = "";
-        List<Node> dfs = new ArrayList<>();
-        ArrayDeque<Node> pile = new ArrayDeque<>();
-        List<Node> allNodes = g.getAllNodes();
-        Collections.sort(allNodes);
-        for(Node n : allNodes){
-
-            pile.add(g.getNode(-1));
-//            if(!dfs.contains(n)){
-//                pile.addFirst(n);
-//            }
-
-            while(!pile.isEmpty()){
-
-                Node currentN = pile.pollFirst();
-
-                if(!dfs.contains(currentN) || (currentN.getId() == 0 )  ){
-                    res += ""+currentN;
-                    dfs.add(currentN);
-                }
-                List<Node> NodesDesc = g.getSuccessors(currentN);
-
-                Collections.sort(NodesDesc, Collections.reverseOrder());
-                for(Node nodeDesc : NodesDesc){
-                    if(!dfs.contains(nodeDesc) || nodeDesc.getId() == 0 ){
-                        pile.addFirst(nodeDesc);
-                    }
-                }
-            }
-        }
-
-        return res;
-
-    }
-
     public int residualCapacity(List<Node> nodes){
         int i =0;
-        int flowDeBase = gResi.getEdge(nodes.get(i), nodes.get(i+1)).getWeight();
+        int flowDeBase = g.getEdge(nodes.get(i), nodes.get(i+1)).getWeight();
         while(nodes.get(i).getId() != 0){
-            int flowSuivant = gResi.getEdge(nodes.get(i), nodes.get(i+1)).getWeight();
+            int flowSuivant = g.getEdge(nodes.get(i), nodes.get(i+1)).getWeight();
             if (flowSuivant < flowDeBase){
                 flowDeBase = flowSuivant;
             }
             i++;
         }
+        return flowDeBase;
+    }
 
+    public void residualGraphSync(List<Node> nodes, int flowDeBase){
+        int i=0;
         while(nodes.get(i).getId() != 0){
             int weightDeBase = gResi.getEdge(nodes.get(i), nodes.get(i+1)).getWeight();
             int reste = weightDeBase-flowDeBase;
@@ -331,9 +401,12 @@ public class MaximumFlow{
             if(reste != 0){
                 gResi.addEdge(nodes.get(i+1), nodes.get(i), flowDeBase);
             }
+            else{
+                gResi.removeEdge(nodes.get(i), nodes.get(i+1));
+                gResi.addEdge(nodes.get(i+1), nodes.get(i), flowDeBase);
+            }
             i++;
         }
-        return flowDeBase;
     }
 
     /*public int residualCapacity(List<Edge> edges){
@@ -347,35 +420,35 @@ public class MaximumFlow{
         return flowDeBase;
     }*/
 
-    public String residualGraphAffiche(int it, List<Node> chemin, int residualCapacity){
+    public String residualGraphAffiche(int it, List<Node> chemin, int residualCapacity ){
         StringBuilder r = new StringBuilder();
         r.append("digraph residualGraph").append(it).append(" {");
         r.append("\nrankdir=\"LR\";");
         r.append("label=\"(1) residual graph.\n");
         r.append("Augmenting path: [");
         for (Node n : chemin){
-            if(n.equals(-1)){
+            if(n.getId() == -1){
                 r.append("s,");
-            } else if (n.equals(0)) {
+            } else if (n.getId() == 0) {
                 r.append("t].\n");
             } else{
                 r.append(n.getId() + ", ");
             }
         }
-        r.append("Residual capacity: " + residualCapacity + ";");
+        r.append("Residual capacity: " + residualCapacity + ";\n");
         for(Edge e : gResi.getAllEdges()) {
-            if(e.from().equals(-1)){
+            if(e.from().getId() == (-1)){
                 r.append("s");
-            }else if(e.from().equals(0)){
-                //Erreur
+            }else if(e.from().getId() == 0){
+                r.append("t");
             }else{
                 r.append(e.from().getId());
             }
             r.append(" -> ");
-            if(e.to().equals(0)){
+            if(e.to().getId() == 0){
                 r.append("t");
-            }else if(e.to().equals(-1)){
-                //Erreur
+            }else if(e.to().getId() == (-1)){
+                r.append("s");
             }else{
                 r.append(e.to().getId());
             }
@@ -390,26 +463,29 @@ public class MaximumFlow{
         r.append("digraph flow").append(it).append(" {");
         r.append("\nrankdir=\"LR\";");
         int ancienit = it-1;
+        int i=0;
         r.append("label=\"("+ it +") induced from residual graph " +
                 ancienit + ". Value : " + residualCapacity + ";.\n");
         for(Edge e : g.getAllEdges()) {
-            if(e.from().equals(-1)){
+            if(e.from().getId() == -1){
                 r.append("s");
-            }else if(e.from().equals(0)){
+            }else if(e.from().getId() == 0){
                 //Erreur
             }else{
                 r.append(e.from().getId());
             }
             r.append(" -> ");
-            if(e.to().equals(0)){
+            if(e.to().getId() == 0){
                 r.append("t");
-            }else if(e.to().equals(-1)){
+            }else if(e.to().getId() == -1){
                 //Erreur
-            }else{
+            }else {
                 r.append(e.to().getId());
             }
-            if(chemin.contains(e.to())){//Peut-être meilleur avec list Edge
+            System.out.println(chemin.get(i) + " c le from apres : " + e.from() + " c le to mais chemin : " + chemin.get(i+1) + " c le to : " + e.to());
+            if(chemin.get(i).equals(e.from()) && chemin.get(i+1).equals(e.to())){//Peut-être meilleur avec list Edge
                 r.append("[label=\"" + residualCapacity + "/" +  e.getWeight() + "\", len=").append(e.getWeight()).append("];\n");
+                i++;
             }
             else{
                 r.append("[label=\"").append(e.getWeight()).append("\", len=").append(e.getWeight()).append("];\n");
