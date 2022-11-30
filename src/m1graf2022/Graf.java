@@ -378,6 +378,47 @@ public class Graf {
 	}
 
 	/**
+	 * Get an edge(u,v) in the graf,
+	 *
+	 * @param u a node
+	 * @param v a node
+	 * @return  Edges
+	 */
+	public Edge getEdge(Node u, Node v) {
+		if(u == null || v == null){
+			return null;
+		}
+		List<Edge> l =getAllEdges();
+		for(Edge e : l){
+			if( (e.from().equals(u) && e.to().equals(v)  )  ){
+				return e;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get an edge(u,v) in the graf,
+	 *
+	 * @param u a node
+	 * @param v a node
+	 * @return  Edges
+	 */
+	public Edge getEdge(int u,int v) {
+		if(getNode(u) == null || getNode(v) == null){
+			return null;
+		}
+		List<Edge> l =getAllEdges();
+		for(Edge e : l){
+			if( (e.from().equals(getNode(u)) && e.to().equals(getNode(v))  )   ){
+				return e;
+			}
+		}
+		return null;
+	}
+
+
+	/**
 	 * Add an edge(from,to) to the graf
 	 *
 	 * @param from a node

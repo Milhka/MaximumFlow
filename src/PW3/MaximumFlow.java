@@ -43,7 +43,7 @@ public class MaximumFlow{
                 StringBuilder sb = new StringBuilder();
                 String line = br.readLine();
 
-                Pattern p1 = Pattern.compile("digraph flowNetwork");
+                Pattern p1 = Pattern.compile("digraph");
                 Pattern lineFormat;
 
                 Matcher m1 = p1.matcher(line);
@@ -299,6 +299,19 @@ public class MaximumFlow{
 
         return res;
 
+    }
+
+    public int residualCapacityNodes(List<Node> nodes){
+        int i =0;
+        int flowDeBase = g.getEdge(nodes.get(i), nodes.get(i+1)).getWeight();
+        while(nodes.get(i).getId() != 0){
+            int flowSuivant = g.getEdge(nodes.get(i), nodes.get(i+1)).getWeight();
+            if (flowSuivant < flowDeBase){
+                flowDeBase = flowSuivant;
+            }
+            i++;
+        }
+        return flowDeBase;
     }
 
     public int residualCapacity(List<Edge> edges){
