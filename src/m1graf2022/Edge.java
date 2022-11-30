@@ -158,5 +158,14 @@ public class Edge implements Comparable<Edge>{
 	public Integer getWeight(){
 		return weight;
 	}
+
+	/**
+	 * Set the weight value
+	 *
+	 * @return the integer
+	 */
+	public void setWeight(int weight){
+		 this.weight = weight;
+	}
 	
 }
