@@ -10,12 +10,17 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+//Algorithme d'Edmonds-Karp
+
 public class MaximumFlow{
     Graf g = new Graf();
     int step = 1;
     List<Edge> lEdge;
     HashMap<Edge,Integer> flow = new HashMap<Edge, Integer>();
     public List<List<Node>> AllPath = new ArrayList<>();
+
+    Graf gResi = new Graf();
 
     public MaximumFlow(int ...args){
 
@@ -152,6 +157,13 @@ public class MaximumFlow{
     }
 
     public String flowInit(){
+        for (Node n : g.getAllNodes()){
+            gResi.addNode(n);
+        }
+        for (Edge e : g.getAllEdges()){
+            gResi.addEdge(e);
+        }
+
         String r = "";
         r += "digraph flow"+step+"_init  {";
         r += "\nrankdir=\"LR\";";
@@ -301,20 +313,30 @@ public class MaximumFlow{
 
     }
 
-    public int residualCapacityNodes(List<Node> nodes){
+    public int residualCapacity(List<Node> nodes){
         int i =0;
-        int flowDeBase = g.getEdge(nodes.get(i), nodes.get(i+1)).getWeight();
+        int flowDeBase = gResi.getEdge(nodes.get(i), nodes.get(i+1)).getWeight();
         while(nodes.get(i).getId() != 0){
-            int flowSuivant = g.getEdge(nodes.get(i), nodes.get(i+1)).getWeight();
+            int flowSuivant = gResi.getEdge(nodes.get(i), nodes.get(i+1)).getWeight();
             if (flowSuivant < flowDeBase){
                 flowDeBase = flowSuivant;
+            }
+            i++;
+        }
+
+        while(nodes.get(i).getId() != 0){
+            int weightDeBase = gResi.getEdge(nodes.get(i), nodes.get(i+1)).getWeight();
+            int reste = weightDeBase-flowDeBase;
+            gResi.getEdge(nodes.get(i), nodes.get(i+1)).setWeight(reste);
+            if(reste != 0){
+                gResi.addEdge(nodes.get(i+1), nodes.get(i), flowDeBase);
             }
             i++;
         }
         return flowDeBase;
     }
 
-    public int residualCapacity(List<Edge> edges){
+    /*public int residualCapacity(List<Edge> edges){
         Edge edge = edges.iterator().next();
         int flowDeBase = flow.get(edge);
         for (Edge e: edges) {
@@ -323,9 +345,9 @@ public class MaximumFlow{
             }
         }
         return flowDeBase;
-    }
+    }*/
 
-    public String residualGraph(int it, List<Node> chemin, int residualCapacity){
+    public String residualGraphAffiche(int it, List<Node> chemin, int residualCapacity){
         StringBuilder r = new StringBuilder();
         r.append("digraph residualGraph").append(it).append(" {");
         r.append("\nrankdir=\"LR\";");
@@ -341,7 +363,7 @@ public class MaximumFlow{
             }
         }
         r.append("Residual capacity: " + residualCapacity + ";");
-        for(Edge e : g.getAllEdges()) {
+        for(Edge e : gResi.getAllEdges()) {
             if(e.from().equals(-1)){
                 r.append("s");
             }else if(e.from().equals(0)){
