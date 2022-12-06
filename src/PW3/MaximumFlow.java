@@ -171,17 +171,49 @@ public class MaximumFlow{
         }
     }
 
+    public int minValue(List<Node> l){
+        int min = -1;
+        for(int i = 0; i < l.size() ; i++ ){
+            if(l.get(i) != null && l.get(i).getId() != 0 ){
+                if(min == -1)
+                    min = g.getEdge(l.get(i),l.get(i+1)).getWeight();
+                int currentVal = g.getEdge(l.get(i),l.get(i+1)).getWeight();
+                if(currentVal < min){
+                    min = g.getEdge(l.get(i),l.get(i+1)).getWeight();
+                }
+            }
 
 
+        }
+        return min;
+    }
+
+/*
+    public void bfs(){
+        int front = 0;
+        int back = 0;
+
+        while(front < back && ){
+
+        }
+    }
+
+ */
 
     public void solution_1(){
-        if(checkFlowNetwork()){
+        if(!checkFlowNetwork()){
             System.out.println("The graf is not OK");
+        }else{
+            System.out.println("The graf is OK");
         }
         FindAllPaths(-1,0);
         System.out.println("\n"+ AllPath.toString()) ;
+        Collections.sort(AllPath,(l1,l2) -> {
+            return getMinCheminFirst(l1) - getMinCheminFirst(l2);
+        });
         int i = 0;
         System.out.println(flowInit());
+/*
         List<Node> list1 = new ArrayList<>();
         List<Node> list2 = new ArrayList<>();
         List<Node> list3 = new ArrayList<>();
@@ -231,15 +263,24 @@ public class MaximumFlow{
         System.out.println(flowSuivant(4,list4,cap));
         residualGraphSync(list4, cap);
 
-        /*for(List<Node> l : AllPath){
+    */
+        for(List<Node> l : AllPath){
             int cap = residualCapacity(l)  ;
+            if(cap == -1){
+                continue;
+            }
             System.out.println(residualGraphAffiche(i,l,cap));
+            flowSync(l,cap);
             System.out.println(flowSuivant(i,l,cap));
             residualGraphSync(l, cap);
             i++;
-        }*/
+        }
+
     }
 
+    public int getMinCheminFirst(List<Node> l){
+        return l.size();
+    }
     public void solution_1(boolean saveFile){
         if(checkFlowNetwork()){
             System.out.println("The graf is not OK");
@@ -249,7 +290,6 @@ public class MaximumFlow{
         int i = 0;
         String residualName = "residualGraph";
         String flowName = "flow";
-
         for(List<Node> l : AllPath){
             int cap = residualCapacity(l)  ;
             residualName = "residualGraph"+i;
@@ -269,6 +309,7 @@ public class MaximumFlow{
             gResi.addNode(n);
         }
         for (Edge e : g.getAllEdges()){
+
             gResi.addEdge(new Edge(e.from(), e.to(),e.getWeight()));
         }
 
@@ -387,8 +428,12 @@ public class MaximumFlow{
 
     public int residualCapacity(List<Node> nodes){
         int i =0;
-        int flowDeBase = gResi.getEdge(nodes.get(i), nodes.get(i+1)).getWeight();
+
+        int flowDeBase = g.getEdge(nodes.get(i), nodes.get(i+1)).getWeight();
         while(nodes.get(i).getId() != 0){
+            if(gResi.getEdge(nodes.get(i), nodes.get(i+1)) == null){
+                return -1;
+            }
             int flowSuivant = gResi.getEdge(nodes.get(i), nodes.get(i+1)).getWeight();
             if (flowSuivant < flowDeBase){
                 flowDeBase = flowSuivant;

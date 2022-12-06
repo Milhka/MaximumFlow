@@ -97,12 +97,12 @@ public class Main {
 //        s.toDotString();
         MaximumFlow m = MaximumFlow.fromDotFile("src/PW3/test");
         System.out.println(m.toString());
-        if(m.checkFlowNetwork()){
-            System.out.println("Correct");
-        }else{
-            System.out.println("Incorrect");
-        }
+
         m.solution_1();
+
+        MaximumFlow m1 = MaximumFlow.fromDotFile("src/PW3/test2");
+        m1.solution_1();
+
 //        m.FindAllPaths(-1,0);
 //        System.out.println("\n"+ m.AllPath.toString()) ;
 //        int i = 0;
