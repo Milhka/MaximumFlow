@@ -77,8 +77,6 @@ public class MaximumFlow{
         Graf res = null;
         MaximumFlow maxflow = null;
         try {
-            System.out.println("alors");
-
             BufferedReader br = new BufferedReader(new FileReader(filename+extension));
             //Compute the Graf considering its file
             try {
@@ -115,8 +113,6 @@ public class MaximumFlow{
 
 
                     if (lineMatcher.find()) {
-                        System.out.println("match avec le pattern lineformat");
-
                         int groupe1 = -3;
                         int groupe2 = -3;
                         int groupe3 = -3;
@@ -140,7 +136,6 @@ public class MaximumFlow{
                             res.addNode(0);
                             groupe2 = 0;
                         }else{
-                            System.out.println(lineMatcher.group(2));
                             groupe2 = Integer.parseInt(lineMatcher.group(2));
                             res.addNode(Integer.parseInt(lineMatcher.group(2)));
                         }
@@ -263,9 +258,10 @@ public class MaximumFlow{
         toDotFile(flowInit(),name+"_flowInit","gv");
 
         for(List<Node> l : AllPath){
-            System.out.println(i);
             int cap = residualCapacity(l) ;
             if(cap == -1){
+                i++;
+                System.out.println(residualGraphAffiche(i,l,cap));
                 continue;
             }
             toDotFile(residualGraphAffiche(i,l,cap),name+"_residualGraph_"+i,"gv");
@@ -291,18 +287,20 @@ public class MaximumFlow{
         Collections.sort(AllPath,(l1,l2) -> {
             return getMinCheminFirst(l1) - getMinCheminFirst(l2);
         });
-        int i = 0;
+        int i = 1;
         System.out.println(flowInit());
 
         for(List<Node> l : AllPath){
-            System.out.println(i);
             int cap = residualCapacity(l) ;
             if(cap == -1){
+                i++;
+                System.out.println(residualGraphAffiche(i,l,cap));
+                System.out.println(flowSuivant(i+1,l,cap));
                 continue;
             }
             System.out.println(residualGraphAffiche(i,l,cap));
             flowSync(l,cap);
-            System.out.println(flowSuivant(i,l,cap));
+            System.out.println(flowSuivant(i+1,l,cap));
             residualGraphSync(l, cap);
             i++;
         }
@@ -445,9 +443,6 @@ public class MaximumFlow{
         // Clear previously stored paths
         path = new ArrayList<Integer>();
         path.clear();
-
-        System.out.print("Source : " + src + " Destination : " + dst);
-
         path.add(-1);
 
         DFS (src, dst, path);
@@ -463,11 +458,9 @@ public class MaximumFlow{
     public void DFS ( int src , int dst, List<Integer> path) {
 
         if (src == dst) {
-            System.out.print("\nPath : " );
             List<Node> paths = new ArrayList<>();
             for (Integer node : path) {
                 paths.add(g.getNode(node));
-                System.out.print(node + " ");
             }
             AllPath.add(paths);
         } else {
@@ -582,17 +575,26 @@ public class MaximumFlow{
         r.append("digraph residualGraph").append(it).append(" {");
         r.append("\nrankdir=\"LR\";\n");
         r.append("label=\"("+ it + ") residual graph.\n");
-        r.append("Augmenting path: [");
-        for (Node n : chemin){
-            if(n.getId() == -1){
-                r.append("s,");
-            } else if (n.getId() == 0) {
-                r.append("t].\n");
-            } else{
-                r.append(n.getId() + ", ");
+        r.append("Augmenting path: ");
+        if (residualCapacity == -1){
+            r.append("none.\n");
+        }else{
+            for (Node n : chemin){
+                if(n.getId() == -1){
+                    r.append("[s,");
+                } else if (n.getId() == 0) {
+                    r.append("t].\n");
+                } else{
+                    r.append(n.getId() + ", ");
+                }
             }
         }
-        r.append("Residual capacity: " + residualCapacity + "\";\n");
+        if (residualCapacity == -1){
+            r.append("Previous flow was maximum.\n");
+        }
+        else {
+            r.append("Residual capacity: " + residualCapacity + "\";\n");
+        }
         for(Edge e : gResi.getAllEdges()) {
             if(e.from().getId() == (-1)){
                 r.append("s");
@@ -802,10 +804,16 @@ public class MaximumFlow{
         initPreFlow();
         while (overFlowNode(gResi.getAllNodes()) != -2){
             int n = overFlowNode(gResi.getAllNodes());
-            if (!push(n)) relabel(n);
+            if (!push(n))
+                relabel(n);
+
         }
+
+        System.out.println(gResi.toDotString());
 
         return nodeFandH.get(gResi.getNode(0)).get(0);
     }
+
+
 
 }

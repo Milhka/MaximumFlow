@@ -103,9 +103,8 @@ public class Main {
         //MaximumFlow m1 = MaximumFlow.fromDotFile("src/PW3/test2");
         //m1.solution_1();
 
-        MaximumFlow m2 = MaximumFlow.fromDotFile("src/PW3/simpleGraph2");
-        int i = m2.getMaxFlow();
-        System.out.println(i);
+        MaximumFlow m2 = MaximumFlow.fromDotFile("src/PW3/simpleGraph3");
+        m2.solution_1();
 
 //        m.FindAllPaths(-1,0);
 //        System.out.println("\n"+ m.AllPath.toString()) ;
