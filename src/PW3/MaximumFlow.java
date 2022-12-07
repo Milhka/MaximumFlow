@@ -12,6 +12,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.lang.Math.min;
+
 
 //Algorithme d'Edmonds-Karp
 
@@ -20,6 +22,7 @@ public class MaximumFlow{
     int step = 1;
     List<Edge> lEdge;
     HashMap<Edge,List<Integer>> flow = new HashMap<Edge, List<Integer>>();
+    HashMap<Node, List<Integer>> flowPR = new HashMap<Node, List<Integer>>();
     public List<List<Node>> AllPath = new ArrayList<>();
 
     Graf gResi = new Graf();
@@ -162,8 +165,6 @@ public class MaximumFlow{
 
 
     public void toDotFile(String toPrint,String fileName, String extension) {
-
-
         try (PrintWriter out = new PrintWriter(fileName+"."+extension)) {
             out.println(toPrint);
         } catch (FileNotFoundException e) {
@@ -265,7 +266,8 @@ public class MaximumFlow{
 
     */
         for(List<Node> l : AllPath){
-            int cap = residualCapacity(l)  ;
+            System.out.println(i);
+            int cap = residualCapacity(l) ;
             if(cap == -1){
                 continue;
             }
@@ -606,5 +608,87 @@ public class MaximumFlow{
         return r.toString();
     }
 
+    void initPreFlow(){
+        for (Node n :g.getAllNodes()) {
+            //List<Integer> list = new ArrayList<>();
+            if (n.getId() == -1) {
+                //list.add(g.getAllNodes().size());
+                //list.add(0);
+                n.seteFlow(g.getAllNodes().size());
+            }else{
+                n.seteFlow(0);
+                n.setH(0);
+            }
+            //flowPR.put(n, list);
+        }
+        for (Edge e: g.getAllEdges()) {
+            //List<Integer> list = new ArrayList<>();
+            //list.add(0);list.add(e.getWeight());
+            //flow.put(e, list);
+            e.setFlow(0);
+        }
+        for (Node n2: g.getSuccessors(g.getNode(-1))) {
+            //flowPR.get(n2).set(0, g.getEdge(-1, n2.getId()).getWeight());
+            //flowPR.get(n2).set(1, g.getEdge(-1, n2.getId()).getWeight());
+            g.getEdge(-1, n2.getId()).setFlow(g.getEdge(-1, n2.getId()).getWeight());
+            g.getNode(n2.getId()).seteFlow( g.getEdge(-1, n2.getId()).getWeight());
+        }
+    }
+
+    int overFlowNode(List<Node> nodeList){
+        for(Node n : nodeList){
+            if (n.geteFlow() > 0){
+                if (n.getId() != -1) return n.getId();
+            }
+        }
+        return -2;
+    }
+
+    void updateReverseEdgeFlow(Edge e, int flow){
+        for (Edge e2: g.getOutEdges(e.to().getId())) {
+            if (e2.to().getId() == e.from().getId()){
+                e2.setFlow(e2.getFlow() - flow);
+                return;
+            }
+        }
+            g.addEdge(g.getNode(e.to().getId()), g.getNode(e.from().getId()), e.getWeight());
+            g.getEdge(g.getNode(e.to().getId()), g.getNode(e.from().getId())).setFlow(flow);
+    }
+
+    boolean push(int n){
+        for (Edge e : g.getOutEdges(n)) {
+            if (e.getWeight() != 0){
+                if ((g.getNode(n).getH() > g.getNode(e.to().getId()).getH()) && !e.getFlow().equals(e.getWeight())){
+                    int flow = min(e.getWeight() - e.getFlow(), g.getNode(e.from().getId()).geteFlow());
+                    g.getNode(n).seteFlow(g.getNode(n).geteFlow() - flow);
+                    g.getNode(e.to().getId()).seteFlow(g.getNode(e.to().getId()).geteFlow() + flow);
+                    e.setFlow(e.getFlow() + flow);
+                    updateReverseEdgeFlow(e, flow);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    void relabel(int n){
+        int minHeight = Integer.MAX_VALUE;
+        for (Edge e : g.getOutEdges(n)){
+            if (!e.getFlow().equals(e.getWeight()) && g.getNode(e.to().getId()).getH() < minHeight){
+                minHeight = g.getNode(e.to().getId()).getH();
+                g.getNode(n).setH(minHeight + 1);
+            }
+        }
+    }
+
+    public int getMaxFlow(){
+        initPreFlow();
+        while (overFlowNode(g.getAllNodes()) != -2){
+            int n = overFlowNode(g.getAllNodes());
+            if (!push(n)) relabel(n);
+        }
+
+        return g.getNode(0).geteFlow();
+    }
 
 }

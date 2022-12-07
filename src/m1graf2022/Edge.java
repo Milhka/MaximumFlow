@@ -19,6 +19,8 @@ public class Edge implements Comparable<Edge>{
 	 */
 	Integer weight = null;
 
+	Integer flow = null;
+
 	/**
 	 * Instantiates a new Edge with two nodes (from,to)
 	 *
@@ -167,5 +169,9 @@ public class Edge implements Comparable<Edge>{
 	public void setWeight(int weight){
 		 this.weight = weight;
 	}
+
+	public Integer getFlow(){ return this.flow; }
+
+	public void setFlow(int flow) { this.flow = flow; }
 	
 }

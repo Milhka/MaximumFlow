@@ -95,13 +95,17 @@ public class Main {
 //        Graf s = Graf.fromDotFile("simpleGraph");
 //        System.out.println(s.getAllEdges().size());
 //        s.toDotString();
-        MaximumFlow m = MaximumFlow.fromDotFile("src/PW3/test");
-        System.out.println(m.toString());
+        //MaximumFlow m = MaximumFlow.fromDotFile("src/PW3/test");
+        //System.out.println(m.toString());
 
-        m.solution_1();
+        //m.solution_1();
 
-        MaximumFlow m1 = MaximumFlow.fromDotFile("src/PW3/test2");
-        m1.solution_1();
+        //MaximumFlow m1 = MaximumFlow.fromDotFile("src/PW3/test2");
+        //m1.solution_1();
+
+        MaximumFlow m2 = MaximumFlow.fromDotFile("src/PW3/simpleGraph3");
+        int i = m2.getMaxFlow();
+        System.out.println(i + "dsfsf" );
 
 //        m.FindAllPaths(-1,0);
 //        System.out.println("\n"+ m.AllPath.toString()) ;
