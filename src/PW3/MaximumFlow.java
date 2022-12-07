@@ -17,18 +17,48 @@ import static java.lang.Math.min;
 
 //Algorithme d'Edmonds-Karp
 
+
 public class MaximumFlow{
+    /**
+     * Graph where we compute the maximum flow
+     */
     Graf g = new Graf();
+    /**
+     * The Step.
+     */
     int step = 1;
+    /**
+     * a list of edge
+     */
     List<Edge> lEdge;
+    /**
+     * For each edge of graph, a flow is assigned
+     */
     HashMap<Edge,List<Integer>> flow = new HashMap<Edge, List<Integer>>();
+    /**
+     * The Flow pr.
+     */
     HashMap<Node, List<Integer>> flowPR = new HashMap<Node, List<Integer>>();
+    /**
+     * The All path.
+     */
     public List<List<Node>> AllPath = new ArrayList<>();
 
+    /**
+     * The G resi.
+     */
     Graf gResi = new Graf();
 
+    /**
+     * The Value.
+     */
     int value = 0;
 
+    /**
+     * Instantiates a new Maximum flow.
+     *
+     * @param args the args
+     */
     public MaximumFlow(int ...args){
 
         lEdge = g.getAllEdges();
@@ -164,6 +194,13 @@ public class MaximumFlow{
     }
 
 
+    /**
+     * To dot file.
+     *
+     * @param toPrint   the to print
+     * @param fileName  the file name
+     * @param extension the extension
+     */
     public void toDotFile(String toPrint,String fileName, String extension) {
         try (PrintWriter out = new PrintWriter(fileName+"."+extension)) {
             out.println(toPrint);
@@ -172,6 +209,12 @@ public class MaximumFlow{
         }
     }
 
+    /**
+     * Min value int.
+     *
+     * @param l the l
+     * @return the int
+     */
     public int minValue(List<Node> l){
         int min = -1;
         for(int i = 0; i < l.size() ; i++ ){
@@ -189,6 +232,11 @@ public class MaximumFlow{
         return min;
     }
 
+    /**
+     * Solution 1.
+     *
+     * @param name the name
+     */
 /*
     public void bfs(){
         int front = 0;
@@ -229,6 +277,9 @@ public class MaximumFlow{
 
     }
 
+    /**
+     * Solution 1.
+     */
     public void solution_1(){
         if(!checkFlowNetwork()){
             System.out.println("The graf is not OK");
@@ -258,10 +309,21 @@ public class MaximumFlow{
 
     }
 
+    /**
+     * Get min chemin first int.
+     *
+     * @param l the l
+     * @return the int
+     */
     public int getMinCheminFirst(List<Node> l){
         return l.size();
     }
 
+    /**
+     * Flow init string.
+     *
+     * @return the string
+     */
     public String flowInit(){
         for (Node n : g.getAllNodes()){
             gResi.addNode(n);
@@ -299,11 +361,22 @@ public class MaximumFlow{
     }
 
 
+    /**
+     * From dot file maximum flow.
+     *
+     * @param filename the filename
+     * @return the maximum flow
+     */
     public static MaximumFlow fromDotFile(String filename) {
         return fromDotFile(filename,".gv");
     }
 
 
+    /**
+     * Check flow network boolean.
+     *
+     * @return the boolean
+     */
     public boolean checkFlowNetwork(){
         //the source s
         if(!g.existsNode(-1)){
@@ -344,6 +417,11 @@ public class MaximumFlow{
         return true;
     }
 
+    /**
+     * Get all path list.
+     *
+     * @return the list
+     */
     public  List<List<Integer>>  GetAllPath(){
         HashMap<Integer,List<Integer>> map = new HashMap<>();
         List<List<Integer>> l = new ArrayList<>();
@@ -353,6 +431,12 @@ public class MaximumFlow{
 
     private List<Integer> path;
 
+    /**
+     * Find all paths.
+     *
+     * @param src the src
+     * @param dst the dst
+     */
     public void FindAllPaths ( int src, int dst) {
 
         // Clear previously stored paths
@@ -366,6 +450,13 @@ public class MaximumFlow{
         DFS (src, dst, path);
     }
 
+    /**
+     * Dfs.
+     *
+     * @param src  the src
+     * @param dst  the dst
+     * @param path the path
+     */
     public void DFS ( int src , int dst, List<Integer> path) {
 
         if (src == dst) {
@@ -386,6 +477,12 @@ public class MaximumFlow{
     }
 
 
+    /**
+     * Residual capacity int.
+     *
+     * @param nodes the nodes
+     * @return the int
+     */
     public int residualCapacity(List<Node> nodes){
         int i =0;
 
@@ -403,6 +500,12 @@ public class MaximumFlow{
         return flowDeBase;
     }
 
+    /**
+     * Flow sync.
+     *
+     * @param nodes      the nodes
+     * @param flowDeBase the flow de base
+     */
     public void flowSync(List<Node> nodes, int flowDeBase){
         int i = 0;
         while (nodes.get(i).getId() != 0){
@@ -420,6 +523,12 @@ public class MaximumFlow{
         }
     }
 
+    /**
+     * Residual graph sync.
+     *
+     * @param nodes      the nodes
+     * @param flowDeBase the flow de base
+     */
     public void residualGraphSync(List<Node> nodes, int flowDeBase){
         int i=0;
         while(nodes.get(i).getId() != 0){
@@ -460,6 +569,14 @@ public class MaximumFlow{
         return flowDeBase;
     }*/
 
+    /**
+     * Residual graph affiche string.
+     *
+     * @param it               the it
+     * @param chemin           the chemin
+     * @param residualCapacity the residual capacity
+     * @return the string
+     */
     public String residualGraphAffiche(int it, List<Node> chemin, int residualCapacity ){
         int i =0;
         StringBuilder r = new StringBuilder();
@@ -515,6 +632,14 @@ public class MaximumFlow{
     }
 
 
+    /**
+     * Flow suivant string.
+     *
+     * @param it     the it
+     * @param chemin the chemin
+     * @param value  the value
+     * @return the string
+     */
     public String flowSuivant(int it, List<Node> chemin, int value){
         this.value += value;
         StringBuilder r = new StringBuilder();
@@ -566,6 +691,9 @@ public class MaximumFlow{
         return r.toString();
     }
 
+    /**
+     * Init pre flow.
+     */
     void initPreFlow(){
         for (Node n :g.getAllNodes()) {
             if (n.getId() == -1) {
@@ -587,6 +715,12 @@ public class MaximumFlow{
         }
     }
 
+    /**
+     * Over flow node int.
+     *
+     * @param nodeList the node list
+     * @return the int
+     */
     int overFlowNode(List<Node> nodeList){
         for(Node n : nodeList){
             if (n.geteFlow() > 0 ){
@@ -596,6 +730,12 @@ public class MaximumFlow{
         return -2;
     }
 
+    /**
+     * Update reverse edge flow.
+     *
+     * @param e    the e
+     * @param flow the flow
+     */
     void updateReverseEdgeFlow(Edge e, int flow){
         for (Edge e2: g.getOutEdges(e.to().getId())) {
             if (e2.to().getId() == e.from().getId()){
@@ -607,6 +747,12 @@ public class MaximumFlow{
             g.getEdge(g.getNode(e.to().getId()), g.getNode(e.from().getId())).setFlow(flow * (-1));
     }
 
+    /**
+     * Push boolean.
+     *
+     * @param n the n
+     * @return the boolean
+     */
     boolean push(int n){
         for (Edge e : g.getOutEdges(n)) {
             if ((g.getNode(n).getH() > g.getNode(e.to().getId()).getH()) && !e.getFlow().equals(e.getWeight())){
@@ -621,6 +767,11 @@ public class MaximumFlow{
         return false;
     }
 
+    /**
+     * Relabel.
+     *
+     * @param n the n
+     */
     void relabel(int n){
         int minHeight = Integer.MAX_VALUE;
         for (Edge e : g.getOutEdges(n)){
@@ -631,6 +782,11 @@ public class MaximumFlow{
         }
     }
 
+    /**
+     * Get max flow int.
+     *
+     * @return the int
+     */
     public int getMaxFlow(){
         initPreFlow();
         while (overFlowNode(g.getAllNodes()) != -2){
