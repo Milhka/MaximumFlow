@@ -105,7 +105,7 @@ public class Main {
 
         MaximumFlow m2 = MaximumFlow.fromDotFile("src/PW3/simpleGraph2");
         int i = m2.getMaxFlow();
-        System.out.println(i + "dsfsf" );
+        System.out.println(i);
 
 //        m.FindAllPaths(-1,0);
 //        System.out.println("\n"+ m.AllPath.toString()) ;

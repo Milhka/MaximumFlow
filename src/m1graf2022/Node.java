@@ -10,26 +10,6 @@ public class Node implements Comparable<Node>{
 	 */
 	String name;
 
-	Integer eFlow = null;
-
-	public Integer getH() {
-		return h;
-	}
-
-	public void setH(Integer h) {
-		this.h = h;
-	}
-
-	Integer h = null;
-
-	public Integer geteFlow() {
-		return eFlow;
-	}
-
-	public void seteFlow(Integer eFlow) {
-		this.eFlow = eFlow;
-	}
-
 	/**
 	 * Instantiates a new Node with a id node
 	 *

@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 import static java.lang.Math.min;
 
 
@@ -34,11 +35,10 @@ public class MaximumFlow{
     /**
      * For each edge of graph, a flow is assigned
      */
-    HashMap<Edge,List<Integer>> flow = new HashMap<Edge, List<Integer>>();
-    /**
-     * The Flow pr.
-     */
-    HashMap<Node, List<Integer>> flowPR = new HashMap<Node, List<Integer>>();
+    HashMap<Edge,Integer> flow;
+
+    HashMap<Node, List<Integer>> nodeFandH;
+
     /**
      * The All path.
      */
@@ -47,7 +47,7 @@ public class MaximumFlow{
     /**
      * The G resi.
      */
-    Graf gResi = new Graf();
+    Graf gResi;
 
     /**
      * The Value.
@@ -325,6 +325,9 @@ public class MaximumFlow{
      * @return the string
      */
     public String flowInit(){
+        flow = new HashMap<>();
+        gResi = new Graf();
+
         for (Node n : g.getAllNodes()){
             gResi.addNode(n);
         }
@@ -510,14 +513,10 @@ public class MaximumFlow{
         int i = 0;
         while (nodes.get(i).getId() != 0){
             Edge eG = g.getEdge(nodes.get(i), nodes.get(i+1));
-            int weightDeBase = g.getEdge(nodes.get(i), nodes.get(i+1)).getWeight();
             if (flow.containsKey(eG)){
-                flow.get(eG).set(0, flow.get(eG).get(0) + flowDeBase);
+                flow.replace(eG,  flow.get(eG) + flowDeBase);
             }else {
-                List<Integer> list = new ArrayList<>();
-                list.add(flowDeBase);
-                list.add(weightDeBase);
-                flow.put(eG, list);
+                flow.put(eG, flowDeBase);
             }
             i++;
         }
@@ -534,12 +533,12 @@ public class MaximumFlow{
         while(nodes.get(i).getId() != 0){
             Edge e = gResi.getEdge(nodes.get(i), nodes.get(i+1));
             Edge e2 = g.getEdge(nodes.get(i), nodes.get(i+1));
-            int reste = flow.get(e2).get(1)-flow.get(e2).get(0);
+            int reste = e2.getWeight() - flow.get(e2);
             e.setWeight(reste);
             if(reste != 0){
                 e.setWeight(reste);
                 if(gResi.existsEdge(nodes.get(i+1), nodes.get(i))){
-                    gResi.getEdge(nodes.get(i+1), nodes.get(i)).setWeight(flow.get(e2).get(0));
+                    gResi.getEdge(nodes.get(i+1), nodes.get(i)).setWeight(flow.get(e2));
                 }
                 else{
                     gResi.addEdge(nodes.get(i+1), nodes.get(i), flowDeBase);
@@ -548,7 +547,7 @@ public class MaximumFlow{
             else{
                 gResi.removeEdge(nodes.get(i), nodes.get(i+1));
                 if(gResi.existsEdge(nodes.get(i+1), nodes.get(i))){
-                    gResi.getEdge(nodes.get(i+1), nodes.get(i)).setWeight(flow.get(e2).get(0));
+                    gResi.getEdge(nodes.get(i+1), nodes.get(i)).setWeight(flow.get(e2));
                 }
                 else{
                     gResi.addEdge(nodes.get(i+1), nodes.get(i), flowDeBase);
@@ -667,13 +666,13 @@ public class MaximumFlow{
             }
             if (chemin.get(i).getId() != 0){
                 if(chemin.get(i).equals(e.from()) && chemin.get(i+1).equals(e.to())){
-                    r.append(" [label=\"" + flow.get(e).get(0) + "/" +  flow.get(e).get(1) + "\", len=").append(e.getWeight()).append("];\n");
+                    r.append(" [label=\"" + flow.get(e) + "/" +  e.getWeight() + "\", len=").append(e.getWeight()).append("];\n");
                         //Peut-être meilleur avec list Edge
                     i++;
                 }
                 else{
                     if (flow.containsKey(e)){
-                        r.append(" [label=\"").append(flow.get(e).get(0)).append("/" + flow.get(e).get(1) + "\", len=").append(e.getWeight()).append("];\n");
+                        r.append(" [label=\"").append(flow.get(e)).append("/").append(e.getWeight()).append("\", len=").append(e.getWeight()).append("];\n");
                     }else{
                         r.append(" [label=\"").append(e.getWeight()).append("\", len=").append(e.getWeight()).append("];\n");
                     }
@@ -681,7 +680,7 @@ public class MaximumFlow{
             }
             else{
                 if (flow.containsKey(e)){
-                    r.append(" [label=\"").append(flow.get(e).get(0)).append("/" + flow.get(e).get(1) + "\" len=").append(e.getWeight()).append("];\n");
+                    r.append(" [label=\"").append(flow.get(e)).append("/").append(e.getWeight()).append("\" len=").append(e.getWeight()).append("];\n");
                 }else{
                     r.append(" [label=\"").append(e.getWeight()).append("\", len=").append(e.getWeight()).append("];\n");
                 }
@@ -695,23 +694,35 @@ public class MaximumFlow{
      * Init pre flow.
      */
     void initPreFlow(){
-        for (Node n :g.getAllNodes()) {
+        nodeFandH = new HashMap<>();
+        flow = new HashMap<>();
+        gResi = new Graf();
+
+        for (Node n : g.getAllNodes()){
+            gResi.addNode(n);
+        }
+        for (Edge e : g.getAllEdges()){
+
+            gResi.addEdge(new Edge(e.from(), e.to(),e.getWeight()));
+        }
+
+        for (Node n :gResi.getAllNodes()) {
             if (n.getId() == -1) {
-                n.seteFlow(0);
-                n.setH(g.getAllNodes().size());
+                List<Integer> list = new ArrayList<>(); list.add(0); list.add(gResi.getAllNodes().size());
+                nodeFandH.put(n, list);
             }else{
-                n.seteFlow(0);
-                n.setH(0);
+                List<Integer> list = new ArrayList<>(); list.add(0); list.add(0);
+                nodeFandH.put(n, list);
             }
         }
-        for (Edge e: g.getAllEdges()) {
-            e.setFlow(0);
+        for (Edge e: gResi.getAllEdges()) {
+            flow.put(e, 0);
         }
-        for (Edge e: g.getOutEdges(-1)) {
-            e.setFlow(e.getWeight());
-            g.getNode(e.to().getId()).seteFlow(g.getNode(e.to().getId()).geteFlow() + e.getFlow());
-            g.addEdge(e.to(), e.from(), 0);
-            g.getEdge(e.to().getId(), e.from().getId()).setFlow(-e.getFlow());
+        for (Edge e: gResi.getOutEdges(-1)) {
+            flow.replace(e, e.getWeight());
+            nodeFandH.get(e.to()).set(0, nodeFandH.get(e.to()).get(0) + flow.get(e));
+            gResi.addEdge(e.to(), e.from(), 0);
+            flow.put(gResi.getEdge(e.to(), e.from()), flow.get(e) * (-1));
         }
     }
 
@@ -723,7 +734,7 @@ public class MaximumFlow{
      */
     int overFlowNode(List<Node> nodeList){
         for(Node n : nodeList){
-            if (n.geteFlow() > 0 ){
+            if (nodeFandH.get(n).get(0) > 0 ){
                 if (n.getId() != -1 && n.getId() != 0) return n.getId();
             }
         }
@@ -734,17 +745,17 @@ public class MaximumFlow{
      * Update reverse edge flow.
      *
      * @param e    the e
-     * @param flow the flow
+     * @param f the flow
      */
-    void updateReverseEdgeFlow(Edge e, int flow){
-        for (Edge e2: g.getOutEdges(e.to().getId())) {
+    void updateReverseEdgeFlow(Edge e, int f){
+        for (Edge e2: gResi.getOutEdges(e.to().getId())) {
             if (e2.to().getId() == e.from().getId()){
-                e2.setFlow(e2.getFlow() - flow);
+                flow.replace(e2, flow.get(e2) - f);
                 return;
             }
         }
-            g.addEdge(g.getNode(e.to().getId()), g.getNode(e.from().getId()), 0);
-            g.getEdge(g.getNode(e.to().getId()), g.getNode(e.from().getId())).setFlow(flow * (-1));
+            gResi.addEdge(gResi.getNode(e.to().getId()), gResi.getNode(e.from().getId()), 0);
+            flow.put(gResi.getEdge(gResi.getNode(e.to().getId()), gResi.getNode(e.from().getId())), f * (-1));
     }
 
     /**
@@ -754,16 +765,16 @@ public class MaximumFlow{
      * @return the boolean
      */
     boolean push(int n){
-        for (Edge e : g.getOutEdges(n)) {
-            if ((g.getNode(n).getH() > g.getNode(e.to().getId()).getH()) && !e.getFlow().equals(e.getWeight())){
-                int flow = min(e.getWeight() - e.getFlow(), g.getNode(e.from().getId()).geteFlow());
-                g.getNode(n).seteFlow(g.getNode(n).geteFlow() - flow);
-                g.getNode(e.to().getId()).seteFlow(g.getNode(e.to().getId()).geteFlow() + flow);
-                e.setFlow(e.getFlow() + flow);
-                updateReverseEdgeFlow(e, flow);
+        for (Edge e : gResi.getOutEdges(n)) {
+            if ((nodeFandH.get(gResi.getNode(n)).get(1) > nodeFandH.get(e.to()).get(1)) && !flow.get(e).equals(e.getWeight())){
+                int f = min(e.getWeight() - flow.get(e), nodeFandH.get(e.from()).get(0));
+                nodeFandH.get(gResi.getNode(n)).set(0, nodeFandH.get(gResi.getNode(n)).get(0) - f);
+                nodeFandH.get(e.to()).set(0, nodeFandH.get(e.to()).get(0) + f);
+                flow.replace(e, flow.get(e) + f);
+                updateReverseEdgeFlow(e, f);
                 return true;
+                }
             }
-        }
         return false;
     }
 
@@ -774,10 +785,10 @@ public class MaximumFlow{
      */
     void relabel(int n){
         int minHeight = Integer.MAX_VALUE;
-        for (Edge e : g.getOutEdges(n)){
-            if (!e.getFlow().equals(e.getWeight()) && g.getNode(e.to().getId()).getH() < minHeight){
-                minHeight = g.getNode(e.to().getId()).getH();
-                g.getNode(n).setH(minHeight + 1);
+        for (Edge e : gResi.getOutEdges(n)) {
+            if (!flow.get(e).equals(e.getWeight()) && nodeFandH.get(e.to()).get(1) < minHeight) {
+                minHeight = nodeFandH.get(e.to()).get(1);
+                nodeFandH.get(gResi.getNode(n)).set(1, minHeight + 1);
             }
         }
     }
@@ -789,12 +800,12 @@ public class MaximumFlow{
      */
     public int getMaxFlow(){
         initPreFlow();
-        while (overFlowNode(g.getAllNodes()) != -2){
-            int n = overFlowNode(g.getAllNodes());
+        while (overFlowNode(gResi.getAllNodes()) != -2){
+            int n = overFlowNode(gResi.getAllNodes());
             if (!push(n)) relabel(n);
         }
 
-        return g.getNode(0).geteFlow();
+        return nodeFandH.get(gResi.getNode(0)).get(0);
     }
 
 }
