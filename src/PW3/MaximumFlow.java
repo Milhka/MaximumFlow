@@ -24,17 +24,11 @@ public class MaximumFlow{
      * Graph where we compute the maximum flow
      */
     Graf g = new Graf();
-    /**
-     * The Step.
-     */
+
     int step = 1;
-    /**
-     * a list of edge
-     */
+
     List<Edge> lEdge;
-    /**
-     * For each edge of graph, a flow is assigned
-     */
+
     HashMap<Edge,Integer> flow;
 
     HashMap<Node, List<Integer>> nodeFandH;
@@ -67,11 +61,11 @@ public class MaximumFlow{
     }
 
     /**
-     * From dot file graf.
+     * Load graph from dot file
      *
-     * @param filename  the filename
-     * @param extension the extension
-     * @return the graf
+     * @param filename  the name of the graph
+     * @param extension the extension of the graph file
+     * @return an instanciation of a MaximumFlow
      */
     public static MaximumFlow fromDotFile(String filename, String extension) {
         Graf res = null;
@@ -115,7 +109,6 @@ public class MaximumFlow{
 
 
                     if (lineMatcher.find()) {
-                        System.out.println("match avec le pattern lineformat");
 
                         int groupe1 = -3;
                         int groupe2 = -3;
@@ -140,7 +133,6 @@ public class MaximumFlow{
                             res.addNode(0);
                             groupe2 = 0;
                         }else{
-                            System.out.println(lineMatcher.group(2));
                             groupe2 = Integer.parseInt(lineMatcher.group(2));
                             res.addNode(Integer.parseInt(lineMatcher.group(2)));
                         }
@@ -181,7 +173,7 @@ public class MaximumFlow{
             }
         }
         catch(Exception e) {
-            System.out.println("probleme de lecture");
+            System.out.println("Error while reading");
             //throw new RuntimeException();
         }
 
@@ -195,9 +187,9 @@ public class MaximumFlow{
 
 
     /**
-     * To dot file.
+     * Create a file from a graf in gv format
      *
-     * @param toPrint   the to print
+     * @param toPrint   the graf in gv format
      * @param fileName  the file name
      * @param extension the extension
      */
@@ -237,28 +229,17 @@ public class MaximumFlow{
      *
      * @param name the name
      */
-/*
-    public void bfs(){
-        int front = 0;
-        int back = 0;
 
-        while(front < back && ){
-
-        }
-    }
-
- */
     public void solution_1(String name){
         if(!checkFlowNetwork()){
             System.out.println("The graf is not OK");
+            return;
         }else{
             System.out.println("The graf is OK");
         }
         FindAllPaths(-1,0);
-        System.out.println("\n"+ AllPath.toString()) ;
-        Collections.sort(AllPath,(l1,l2) -> {
-            return getMinCheminFirst(l1) - getMinCheminFirst(l2);
-        });
+        //System.out.println("\n"+ AllPath.toString()) ;
+        Collections.sort(AllPath, Comparator.comparingInt(this::getMinCheminFirst));
         int i = 0;
         toDotFile(flowInit(),name+"_flowInit","gv");
 
@@ -278,19 +259,17 @@ public class MaximumFlow{
     }
 
     /**
-     * Solution 1.
+     * Compute the Ford-Fulkerson algorithm to find the maximum flow
      */
     public void solution_1(){
         if(!checkFlowNetwork()){
             System.out.println("The graf is not OK");
+            return;
         }else{
             System.out.println("The graf is OK");
         }
         FindAllPaths(-1,0);
-        System.out.println("\n"+ AllPath.toString()) ;
-        Collections.sort(AllPath,(l1,l2) -> {
-            return getMinCheminFirst(l1) - getMinCheminFirst(l2);
-        });
+        Collections.sort(AllPath, Comparator.comparingInt(this::getMinCheminFirst));
         int i = 0;
         System.out.println(flowInit());
 
@@ -310,7 +289,7 @@ public class MaximumFlow{
     }
 
     /**
-     * Get min chemin first int.
+     * Get the size of a list
      *
      * @param l the l
      * @return the int
@@ -420,17 +399,6 @@ public class MaximumFlow{
         return true;
     }
 
-    /**
-     * Get all path list.
-     *
-     * @return the list
-     */
-    public  List<List<Integer>>  GetAllPath(){
-        HashMap<Integer,List<Integer>> map = new HashMap<>();
-        List<List<Integer>> l = new ArrayList<>();
-        return  l;
-    }
-
 
     private List<Integer> path;
 
@@ -454,7 +422,7 @@ public class MaximumFlow{
     }
 
     /**
-     * Dfs.
+     * Dfs method to find a path
      *
      * @param src  the src
      * @param dst  the dst
@@ -481,7 +449,7 @@ public class MaximumFlow{
 
 
     /**
-     * Residual capacity int.
+     * Get residual capacity int.
      *
      * @param nodes the nodes
      * @return the int
