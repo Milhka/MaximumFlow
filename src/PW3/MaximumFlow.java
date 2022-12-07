@@ -241,7 +241,9 @@ public class MaximumFlow{
         int i = 0;
         toDotFile(flowInit(),name+"_flowInit","gv");
 
+        List<Node> lastList = new ArrayList<>();
         for(List<Node> l : AllPath){
+            lastList = l;
             int cap = residualCapacity(l) ;
             if(cap == -1){
                 i++;
@@ -254,6 +256,8 @@ public class MaximumFlow{
             residualGraphSync(l, cap);
             i++;
         }
+
+        toDotFile(residualGraphAffiche(i,lastList,-1),name+"_residualGraph_"+i,"gv");
 
     }
 
@@ -272,12 +276,12 @@ public class MaximumFlow{
         int i = 0;
         System.out.println(flowInit());
 
+        List<Node> lastList = new ArrayList<>();
         for(List<Node> l : AllPath){
+            lastList = l;
             int cap = residualCapacity(l) ;
             if(cap == -1){
                 i++;
-                System.out.println(residualGraphAffiche(i,l,cap));
-                System.out.println(flowSuivant(i+1,l,cap));
                 continue;
             }
             System.out.println(residualGraphAffiche(i,l,cap));
@@ -286,6 +290,8 @@ public class MaximumFlow{
             residualGraphSync(l, cap);
             i++;
         }
+
+        System.out.println(residualGraphAffiche(i,lastList,-1));
 
     }
 
@@ -779,9 +785,6 @@ public class MaximumFlow{
                 relabel(n);
 
         }
-
-        System.out.println(gResi.toDotString());
-
         return nodeFandH.get(gResi.getNode(0)).get(0);
     }
 
