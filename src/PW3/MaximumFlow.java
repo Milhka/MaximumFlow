@@ -200,6 +200,34 @@ public class MaximumFlow{
     }
 
  */
+    public void solution_1(String name){
+        if(!checkFlowNetwork()){
+            System.out.println("The graf is not OK");
+        }else{
+            System.out.println("The graf is OK");
+        }
+        FindAllPaths(-1,0);
+        System.out.println("\n"+ AllPath.toString()) ;
+        Collections.sort(AllPath,(l1,l2) -> {
+            return getMinCheminFirst(l1) - getMinCheminFirst(l2);
+        });
+        int i = 0;
+        toDotFile(flowInit(),name+"_flowInit","gv");
+
+        for(List<Node> l : AllPath){
+            System.out.println(i);
+            int cap = residualCapacity(l) ;
+            if(cap == -1){
+                continue;
+            }
+            toDotFile(residualGraphAffiche(i,l,cap),name+"_residualGraph_"+i,"gv");
+            flowSync(l,cap);
+            toDotFile(flowSuivant(i,l,cap),name+"_flow_"+i,"gv");
+            residualGraphSync(l, cap);
+            i++;
+        }
+
+    }
 
     public void solution_1(){
         if(!checkFlowNetwork()){
@@ -214,57 +242,7 @@ public class MaximumFlow{
         });
         int i = 0;
         System.out.println(flowInit());
-/*
-        List<Node> list1 = new ArrayList<>();
-        List<Node> list2 = new ArrayList<>();
-        List<Node> list3 = new ArrayList<>();
-        List<Node> list4 = new ArrayList<>();
-        list1.add(g.getNode(-1));
-        list1.add(g.getNode(1));
-        list1.add(g.getNode(3));
-        list1.add(g.getNode(4));
-        list1.add(g.getNode(0));
 
-        list2.add(g.getNode(-1));
-        list2.add(g.getNode(1));
-        list2.add(g.getNode(3));
-        list2.add(g.getNode(0));
-
-        list3.add(g.getNode(-1));
-        list3.add(g.getNode(2));
-        list3.add(g.getNode(3));
-        list3.add(g.getNode(0));
-
-        list4.add(g.getNode(-1));
-        list4.add(g.getNode(2));
-        list4.add(g.getNode(4));
-        list4.add(g.getNode(0));
-
-        int cap = residualCapacity(list1)  ;
-        System.out.println(residualGraphAffiche(1,list1,cap));
-        flowSync(list1, cap);
-        System.out.println(flowSuivant(1,list1,cap));
-        residualGraphSync(list1, cap);
-
-        cap = residualCapacity(list2)  ;
-        System.out.println(residualGraphAffiche(2,list2,cap));
-        flowSync(list2, cap);
-        System.out.println(flowSuivant(2,list2,cap));
-        residualGraphSync(list2, cap);
-
-        cap = residualCapacity(list3)  ;
-        System.out.println(residualGraphAffiche(3,list3,cap));
-        flowSync(list3, cap);
-        System.out.println(flowSuivant(3,list3,cap));
-        residualGraphSync(list3, cap);
-
-        cap = residualCapacity(list4)  ;
-        System.out.println(residualGraphAffiche(4,list4,cap));
-        flowSync(list4, cap);
-        System.out.println(flowSuivant(4,list4,cap));
-        residualGraphSync(list4, cap);
-
-    */
         for(List<Node> l : AllPath){
             System.out.println(i);
             int cap = residualCapacity(l) ;
@@ -283,28 +261,6 @@ public class MaximumFlow{
     public int getMinCheminFirst(List<Node> l){
         return l.size();
     }
-    public void solution_1(boolean saveFile){
-        if(checkFlowNetwork()){
-            System.out.println("The graf is not OK");
-        }
-        FindAllPaths(-1,0);
-        System.out.println("\n"+ AllPath.toString()) ;
-        int i = 0;
-        String residualName = "residualGraph";
-        String flowName = "flow";
-        for(List<Node> l : AllPath){
-            int cap = residualCapacity(l)  ;
-            residualName = "residualGraph"+i;
-            flowName = "flow"+i;
-            toDotFile( residualGraphAffiche(i,l,cap),residualName,"gv");
-            toDotFile( flowSuivant(i,l,cap),flowName,"gv");
-            System.out.println(residualGraphAffiche(i,l,cap));
-            System.out.println(flowSuivant(i,l,cap));
-
-            i++;
-        }
-    }
-
 
     public String flowInit(){
         for (Node n : g.getAllNodes()){
@@ -320,15 +276,16 @@ public class MaximumFlow{
         r += "\nrankdir=\"LR\";";
         r += "\nlabel=\"(1) Flow initial. Value: 0\";\n";
         for(Edge e : g.getAllEdges()) {
-            if(e.from().equals(-1)){
+            if(e.from().getId() == -1){
                 r += "s";
             }else if(e.from().equals(0)){
                 //Erreur
             }else{
+                System.out.println("-----"+e.from());
                 r += e.from().getId();
             }
             r += " -> ";
-            if(e.to().equals(0)){
+            if(e.to().getId() == 0){
                 r += "t";
             }else if(e.to().equals(-1)){
                 //Erreur
@@ -337,6 +294,7 @@ public class MaximumFlow{
             }
             r+= "[label=\""+e.getWeight()+"\", len="+e.getWeight()+"];\n";
         }
+        r+= "\n}";
         return r;
     }
 
