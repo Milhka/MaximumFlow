@@ -172,6 +172,6 @@ public class Edge implements Comparable<Edge>{
 
 	public Integer getFlow(){ return this.flow; }
 
-	public void setFlow(int flow) { this.flow = flow; }
+	public void setFlow(Integer flow) { this.flow = flow; }
 	
 }

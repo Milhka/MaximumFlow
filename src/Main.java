@@ -103,7 +103,7 @@ public class Main {
         //MaximumFlow m1 = MaximumFlow.fromDotFile("src/PW3/test2");
         //m1.solution_1();
 
-        MaximumFlow m2 = MaximumFlow.fromDotFile("src/PW3/simpleGraph3");
+        MaximumFlow m2 = MaximumFlow.fromDotFile("src/PW3/simpleGraph2");
         int i = m2.getMaxFlow();
         System.out.println(i + "dsfsf" );
 

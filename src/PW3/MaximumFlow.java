@@ -610,35 +610,29 @@ public class MaximumFlow{
 
     void initPreFlow(){
         for (Node n :g.getAllNodes()) {
-            //List<Integer> list = new ArrayList<>();
             if (n.getId() == -1) {
-                //list.add(g.getAllNodes().size());
-                //list.add(0);
-                n.seteFlow(g.getAllNodes().size());
+                n.seteFlow(0);
+                n.setH(g.getAllNodes().size());
             }else{
                 n.seteFlow(0);
                 n.setH(0);
             }
-            //flowPR.put(n, list);
         }
         for (Edge e: g.getAllEdges()) {
-            //List<Integer> list = new ArrayList<>();
-            //list.add(0);list.add(e.getWeight());
-            //flow.put(e, list);
             e.setFlow(0);
         }
-        for (Node n2: g.getSuccessors(g.getNode(-1))) {
-            //flowPR.get(n2).set(0, g.getEdge(-1, n2.getId()).getWeight());
-            //flowPR.get(n2).set(1, g.getEdge(-1, n2.getId()).getWeight());
-            g.getEdge(-1, n2.getId()).setFlow(g.getEdge(-1, n2.getId()).getWeight());
-            g.getNode(n2.getId()).seteFlow( g.getEdge(-1, n2.getId()).getWeight());
+        for (Edge e: g.getOutEdges(-1)) {
+            e.setFlow(e.getWeight());
+            g.getNode(e.to().getId()).seteFlow(g.getNode(e.to().getId()).geteFlow() + e.getFlow());
+            g.addEdge(e.to(), e.from(), 0);
+            g.getEdge(e.to().getId(), e.from().getId()).setFlow(-e.getFlow());
         }
     }
 
     int overFlowNode(List<Node> nodeList){
         for(Node n : nodeList){
-            if (n.geteFlow() > 0){
-                if (n.getId() != -1) return n.getId();
+            if (n.geteFlow() > 0 ){
+                if (n.getId() != -1 && n.getId() != 0) return n.getId();
             }
         }
         return -2;
@@ -651,21 +645,19 @@ public class MaximumFlow{
                 return;
             }
         }
-            g.addEdge(g.getNode(e.to().getId()), g.getNode(e.from().getId()), e.getWeight());
-            g.getEdge(g.getNode(e.to().getId()), g.getNode(e.from().getId())).setFlow(flow);
+            g.addEdge(g.getNode(e.to().getId()), g.getNode(e.from().getId()), 0);
+            g.getEdge(g.getNode(e.to().getId()), g.getNode(e.from().getId())).setFlow(flow * (-1));
     }
 
     boolean push(int n){
         for (Edge e : g.getOutEdges(n)) {
-            if (e.getWeight() != 0){
-                if ((g.getNode(n).getH() > g.getNode(e.to().getId()).getH()) && !e.getFlow().equals(e.getWeight())){
-                    int flow = min(e.getWeight() - e.getFlow(), g.getNode(e.from().getId()).geteFlow());
-                    g.getNode(n).seteFlow(g.getNode(n).geteFlow() - flow);
-                    g.getNode(e.to().getId()).seteFlow(g.getNode(e.to().getId()).geteFlow() + flow);
-                    e.setFlow(e.getFlow() + flow);
-                    updateReverseEdgeFlow(e, flow);
-                    return true;
-                }
+            if ((g.getNode(n).getH() > g.getNode(e.to().getId()).getH()) && !e.getFlow().equals(e.getWeight())){
+                int flow = min(e.getWeight() - e.getFlow(), g.getNode(e.from().getId()).geteFlow());
+                g.getNode(n).seteFlow(g.getNode(n).geteFlow() - flow);
+                g.getNode(e.to().getId()).seteFlow(g.getNode(e.to().getId()).geteFlow() + flow);
+                e.setFlow(e.getFlow() + flow);
+                updateReverseEdgeFlow(e, flow);
+                return true;
             }
         }
         return false;
